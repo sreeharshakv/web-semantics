@@ -8,13 +8,15 @@ public class HousingPriceDO {
 
     public HousingPriceDO(String[] record) {
         this.setRegionID(Long.valueOf(record[0]));
-        this.setRegionName(record[1]);
-        this.setState(record[2]);
-        this.setCity(record[3]);
+        this.setCPS(record[1]);
+        this.setRegionName(record[2]);
+        this.setState(record[3]);
+        this.setCity(record[4]);
         this.setHPI(record);
     }
 
     private Long regionID;
+    private String CPS;
     private String regionName;
     private String state;
     private String city;
@@ -27,6 +29,14 @@ public class HousingPriceDO {
 
     public void setRegionID(Long regionID) {
         this.regionID = regionID;
+    }
+
+    public String getCPS() {
+        return CPS;
+    }
+
+    public void setCPS(String CPS) {
+        this.CPS = CPS;
     }
 
     public String getRegionName() {
@@ -60,8 +70,12 @@ public class HousingPriceDO {
     public void setHPI(String[] HPIRecord) {
         HashMap<String, Double> data = new HashMap<>();
         for (int i = 0; i < timestamps.length; i++) {
-            data.put(timestamps[i], Double.valueOf(HPIRecord[i+4]));
+            data.put(timestamps[i], Double.valueOf(HPIRecord[i+5]));
         }
         this.HPI = data;
+    }
+
+    public Double getHPIonMonthAndYear(String date) {
+        return this.HPI.get(date);
     }
 }
