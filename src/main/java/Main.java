@@ -13,7 +13,7 @@ public class Main {
         CSVHelper csvHelper = new CSVHelperImpl();
 
         // Read both CSV Files and parse into composite model to convert into RDF
-        HashMap<String, CrimeDO> crimeDOList = csvHelper.getCrimeInfo();
+        HashMap<String, CrimeDO> crimeDOMap = csvHelper.getCrimeInfo();
 
         // Apache Jena to serialise to rdf
         Model model = ModelFactory.createDefaultModel();

@@ -17,7 +17,7 @@ import java.util.Objects;
 public class CSVHelperImpl implements CSVHelper {
 
     public HashMap<String, HousingPriceDO> getHousingInfo() {
-        HashMap<String, HousingPriceDO> housingPriceDOList = new HashMap<>();
+        HashMap<String, HousingPriceDO> housingPriceDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
                 new InputStreamReader(
                         Objects.requireNonNull(HousingPriceDO.class
@@ -28,18 +28,18 @@ public class CSVHelperImpl implements CSVHelper {
             List<String[]> data = reader.readAll();
             for (String[] record : data) {
                 HousingPriceDO housingPriceDO = new HousingPriceDO(record);
-                housingPriceDOList.put(housingPriceDO.getRegionName(), housingPriceDO);
+                housingPriceDOMap.put(housingPriceDO.getRegionName(), housingPriceDO);
             }
         } catch (CsvException | IOException e) {
             throw new RuntimeException(e);
         }
 
-        return housingPriceDOList;
+        return housingPriceDOMap;
     }
 
     public HashMap<String, CrimeDO> getCrimeInfo() {
-        HashMap<String, HousingPriceDO> housingPriceDOList = getHousingInfo();
-        HashMap<String, CrimeDO> crimeDOList = new HashMap<>();
+        HashMap<String, HousingPriceDO> housingPriceDOMap = getHousingInfo();
+        HashMap<String, CrimeDO> crimeDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
                 new InputStreamReader(
                         Objects.requireNonNull(CrimeDO.class
@@ -49,25 +49,28 @@ public class CSVHelperImpl implements CSVHelper {
                 .build()) {
             List<String[]> data = reader.readAll();
             for (String[] record : data) {
-                if (!crimeDOList.containsKey(record[0]) && !record[0].equalsIgnoreCase("DR_NO")) {
+                if (!crimeDOMap.containsKey(record[0]) && !record[0].equalsIgnoreCase("DR_NO")) {
                     CrimeDO crimeDO = new CrimeDO(record);
-                    addHousingInfoToCrimeDO(crimeDO, housingPriceDOList.get(crimeDO.getAreaName()));
-                    crimeDOList.put(crimeDO.getDrNo(), crimeDO);
+                    if (addHousingInfoToCrimeDO(crimeDO, housingPriceDOMap.get(crimeDO.getAreaName()))) {
+                        crimeDOMap.put(crimeDO.getDrNo(), crimeDO);
+                    }
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        return crimeDOList;
+        return crimeDOMap;
     }
 
-    private void addHousingInfoToCrimeDO(CrimeDO crimeDO, HousingPriceDO housingPriceDO) {
-        if (housingPriceDO == null)
-            return;
-        Double hpi = housingPriceDO.getHPIonDate(crimeDO.getDateOccurred());
-        if (hpi != null) {
-            crimeDO.setHPI(hpi);
-        } else System.out.println("HPI not found for " + crimeDO.getDrNo());
+    private boolean addHousingInfoToCrimeDO(CrimeDO crimeDO, HousingPriceDO housingPriceDO) {
+        if (housingPriceDO != null) {
+            Double hpi = housingPriceDO.getHPIonDate(crimeDO.getDateOccurred());
+            if (hpi != null) {
+                crimeDO.setHPI(hpi);
+                return true;
+            }
+        }
+        return false;
     }
 }
