@@ -1,10 +1,15 @@
 package Model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class CrimeDO {
 
     private String drNo; // Division of Records Number: Official file number made up of a 2 digit year, area ID, and 5 digits
-    private String dateReported;
-    private String dateOccurred;
+    private Date dateReported;
+    private Date dateOccurred;
     private String area;
     private String areaName;
     private String[] crimeCodes;
@@ -20,14 +25,11 @@ public class CrimeDO {
     private String crossStreet;
     private Double HPI;
 
-    public CrimeDO(String[] record) {
-//        DateFormat formatter = new SimpleDateFormat("d/MM/yy,HH:mm");
+    public CrimeDO(String[] record) throws ParseException {
+        DateFormat formatter = new SimpleDateFormat("MM/d/yy hh:mm:ss");
         this.setDrNo(record[0]);
-//        this.setDateReported(formatter.parse(record[1]));
-//        this.setDateOccurred(formatter.parse(record[2]));
-        this.setDateReported(record[1]);
-        this.setDateOccurred(record[2]);
-//        this.getDateOccurred().setTime(Long.parseLong(record[3]));
+        this.setDateReported(formatter.parse(record[1]));
+        this.setDateOccurred(formatter.parse(record[2]));
         this.setArea(record[4]);
         this.setAreaName(record[5]);
         this.setCrimeCodes(new String[]{record[14], record[15], record[16], record[17]});
@@ -51,19 +53,19 @@ public class CrimeDO {
         this.drNo = drNo;
     }
 
-    public String getDateReported() {
+    public Date getDateReported() {
         return dateReported;
     }
 
-    public void setDateReported(String dateReported) {
+    public void setDateReported(Date dateReported) {
         this.dateReported = dateReported;
     }
 
-    public String getDateOccurred() {
+    public Date getDateOccurred() {
         return dateOccurred;
     }
 
-    public void setDateOccurred(String dateOccurred) {
+    public void setDateOccurred(Date dateOccurred) {
         this.dateOccurred = dateOccurred;
     }
 

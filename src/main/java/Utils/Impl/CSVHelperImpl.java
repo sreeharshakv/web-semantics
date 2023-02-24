@@ -28,7 +28,7 @@ public class CSVHelperImpl implements CSVHelper {
             List<String[]> data = reader.readAll();
             for (String[] record : data) {
                 HousingPriceDO housingPriceDO = new HousingPriceDO(record);
-                housingPriceDOList.put(housingPriceDO.getCPS(), housingPriceDO);
+                housingPriceDOList.put(housingPriceDO.getRegionName(), housingPriceDO);
             }
         } catch (CsvException | IOException e) {
             throw new RuntimeException(e);
@@ -63,6 +63,11 @@ public class CSVHelperImpl implements CSVHelper {
     }
 
     private void addHousingInfoToCrimeDO(CrimeDO crimeDO, HousingPriceDO housingPriceDO) {
-        crimeDO.setHPI(housingPriceDO.getHPIonMonthAndYear(crimeDO.getDateOccurred()));
+        if (housingPriceDO == null)
+            return;
+        Double hpi = housingPriceDO.getHPIonDate(crimeDO.getDateOccurred());
+        if (hpi != null) {
+            crimeDO.setHPI(hpi);
+        } else System.out.println("HPI not found for " + crimeDO.getDrNo());
     }
 }
