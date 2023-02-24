@@ -41,8 +41,8 @@ public class CrimeDO {
         this.setWeaponDesc(record[11]);
         this.setStatus(record[12]);
         this.setStatusDesc(record[13]);
-        this.setLocation(record[18]);
-        this.setCrossStreet(record[19]);
+        this.setLocation(record[18].trim().replaceAll(" +", " "));
+        this.setCrossStreet(record[19].trim().replaceAll(" +", " "));
     }
 
     public String getDrNo() {
