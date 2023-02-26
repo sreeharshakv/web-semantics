@@ -4,6 +4,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class CrimeDO {
 
@@ -12,12 +15,12 @@ public class CrimeDO {
     private Date dateOccurred;
     private String area;
     private String areaName;
-    private String[] crimeCodes;
+    private List<Integer> crimeCodes;
     private String primaryCrimeDesc;
-    private String[] moCodes; // see link: https://data.lacity.org/api/views/y8tr-7khq/files/3a967fbd-f210-4857-bc52-60230efe256c?download=true&filename=MO%20CODES%20(numerical%20order).pdf
-    private String premise;
+    private List<Integer> moCodes; // see link: https://data.lacity.org/api/views/y8tr-7khq/files/3a967fbd-f210-4857-bc52-60230efe256c?download=true&filename=MO%20CODES%20(numerical%20order).pdf
+    private int premise;
     private String premiseDesc;
-    private String weapon;
+    private int weapon;
     private String weaponDesc;
     private String status;
     private String statusDesc;
@@ -35,9 +38,9 @@ public class CrimeDO {
         this.setCrimeCodes(new String[]{record[14], record[15], record[16], record[17]});
         this.setPrimaryCrimeDesc(record[6]);
         this.setMoCodes(record[7].split(" "));
-        this.setPremise(record[8]);
+        this.setPremise(Integer.parseInt(record[8]));
         this.setPremiseDesc(record[9]);
-        this.setWeapon(record[10]);
+        this.setWeapon(Integer.parseInt(record[10]));
         this.setWeaponDesc(record[11]);
         this.setStatus(record[12]);
         this.setStatusDesc(record[13]);
@@ -85,12 +88,12 @@ public class CrimeDO {
         this.areaName = areaName;
     }
 
-    public String[] getCrimeCodes() {
+    public List<Integer> getCrimeCodes() {
         return crimeCodes;
     }
 
     public void setCrimeCodes(String[] crimeCodes) {
-        this.crimeCodes = crimeCodes;
+        this.crimeCodes = Arrays.stream(Arrays.stream(crimeCodes).mapToInt(Integer::parseInt).toArray()).boxed().collect(Collectors.toList());
     }
 
     public String getPrimaryCrimeDesc() {
@@ -101,19 +104,19 @@ public class CrimeDO {
         this.primaryCrimeDesc = primaryCrimeDesc;
     }
 
-    public String[] getMoCodes() {
+    public List<Integer> getMoCodes() {
         return moCodes;
     }
 
     public void setMoCodes(String[] moCodes) {
-        this.moCodes = moCodes;
+        this.moCodes = Arrays.stream(Arrays.stream(moCodes).mapToInt(Integer::parseInt).toArray()).boxed().collect(Collectors.toList());
     }
 
-    public String getPremise() {
+    public int getPremise() {
         return premise;
     }
 
-    public void setPremise(String premise) {
+    public void setPremise(int premise) {
         this.premise = premise;
     }
 
@@ -125,11 +128,11 @@ public class CrimeDO {
         this.premiseDesc = premiseDesc;
     }
 
-    public String getWeapon() {
+    public int getWeapon() {
         return weapon;
     }
 
-    public void setWeapon(String weapon) {
+    public void setWeapon(int weapon) {
         this.weapon = weapon;
     }
 
