@@ -17,6 +17,7 @@ import java.util.Objects;
 public class CSVHelperImpl implements CSVHelper {
 
     public HashMap<String, HousingPriceDO> getHousingInfo() {
+        System.out.println("Reading Housing prices in LA City since 2010..");
         HashMap<String, HousingPriceDO> housingPriceDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
                 new InputStreamReader(
@@ -38,8 +39,8 @@ public class CSVHelperImpl implements CSVHelper {
     }
 
     public HashMap<String, CrimeDO> getCrimeInfo() {
-        System.out.println("Reading from datasets");
         HashMap<String, HousingPriceDO> housingPriceDOMap = getHousingInfo();
+        System.out.println("Reading Crime records of LA City since 2010..");
         HashMap<String, CrimeDO> crimeDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
                 new InputStreamReader(

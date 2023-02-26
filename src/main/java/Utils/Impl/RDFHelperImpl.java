@@ -87,13 +87,13 @@ public class RDFHelperImpl implements RDFHelper {
         int l = crimeDOList.size();
         try (ProgressBar pb = new ProgressBar("Parsing records to model", l)) {
             for(CrimeDO value: crimeDOList) {
-                Individual crimeRecordInstance = crimeRecord.createIndividual(crimeDS + value.getDrNo());
-                Individual areaInstance = areaInfo.createIndividual(crimeDS + value.getArea());
-                Individual crimeInstance = crimeInfo.createIndividual(crimeDS + value.getCrimeCodes()[0]);
-                Individual premiseInstance = premiseInfo.createIndividual(crimeDS + value.getPremise());
-                Individual weaponInstance = weaponInfo.createIndividual(crimeDS + value.getWeapon());
-                Individual statusInstance = statusInfo.createIndividual(crimeDS + value.getStatus());
-                Individual locationInstance = crimeRecord.createIndividual(crimeDS + value.getLocation().replaceAll(" ", ""));
+                Individual crimeRecordInstance = crimeRecord.createIndividual(crimeRecord.getURI() + "#" + value.getDrNo());
+                Individual areaInstance = areaInfo.createIndividual(areaInfo.getURI() + "#" + value.getArea());
+                Individual crimeInstance = crimeInfo.createIndividual(crimeInfo.getURI() + "#" + value.getCrimeCodes()[0]);
+                Individual premiseInstance = premiseInfo.createIndividual(premiseInfo.getURI() + "#" + value.getPremise());
+                Individual weaponInstance = weaponInfo.createIndividual(weaponInfo.getURI() + "#" + value.getWeapon());
+                Individual statusInstance = statusInfo.createIndividual(statusInfo.getURI() + "#" + value.getStatus());
+                Individual locationInstance = crimeRecord.createIndividual(crimeRecord.getURI() + "#" + value.getLocation().replaceAll(" ", ""));
 
                 model.add(crimeRecordInstance, hasDRNo, value.getDrNo());
                 model.add(crimeRecordInstance, reportedOn, model.createTypedLiteral(value.getDateReported()));
@@ -131,7 +131,7 @@ public class RDFHelperImpl implements RDFHelper {
     }
 
     public void exportModelToRDFFile() {
-        System.out.println("Writing model to file. Don't touch the file until confirmation");
+        System.out.println("Writing model to file. Please wait for confirmation to access the file..");
         String filePath = ROOT_PATH.resolve("deliverables").resolve(AppConstants.OUTPUT_FILE_NAME).toString();
         try (BufferedWriter out = new BufferedWriter(new FileWriter(filePath))) {
             model.write(out);
