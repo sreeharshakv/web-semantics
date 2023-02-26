@@ -38,6 +38,7 @@ public class CSVHelperImpl implements CSVHelper {
     }
 
     public HashMap<String, CrimeDO> getCrimeInfo() {
+        System.out.println("Reading from datasets");
         HashMap<String, HousingPriceDO> housingPriceDOMap = getHousingInfo();
         HashMap<String, CrimeDO> crimeDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
