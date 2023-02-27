@@ -17,6 +17,7 @@ import java.util.Objects;
 public class CSVHelperImpl implements CSVHelper {
 
     public HashMap<String, HousingPriceDO> getHousingInfo() {
+        System.out.println("Reading Housing prices in LA City since 2010..");
         HashMap<String, HousingPriceDO> housingPriceDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
                 new InputStreamReader(
@@ -39,6 +40,7 @@ public class CSVHelperImpl implements CSVHelper {
 
     public HashMap<String, CrimeDO> getCrimeInfo() {
         HashMap<String, HousingPriceDO> housingPriceDOMap = getHousingInfo();
+        System.out.println("Reading Crime records of LA City since 2010..");
         HashMap<String, CrimeDO> crimeDOMap = new HashMap<>();
         try (CSVReader reader = new CSVReaderBuilder((
                 new InputStreamReader(
@@ -51,7 +53,7 @@ public class CSVHelperImpl implements CSVHelper {
             for (String[] record : data) {
                 if (!crimeDOMap.containsKey(record[0]) && !record[0].equalsIgnoreCase("DR_NO")) {
                     CrimeDO crimeDO = new CrimeDO(record);
-                    if (addHousingInfoToCrimeDO(crimeDO, housingPriceDOMap.get(crimeDO.getAreaName()))) {
+                    if (crimeDO.isValid() && addHousingInfoToCrimeDO(crimeDO, housingPriceDOMap.get(crimeDO.getAreaName()))) {
                         crimeDOMap.put(crimeDO.getDrNo(), crimeDO);
                     }
                 }
