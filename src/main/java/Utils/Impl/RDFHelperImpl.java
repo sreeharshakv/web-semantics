@@ -11,7 +11,6 @@ import org.apache.jena.vocabulary.XSD;
 import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 
 public class RDFHelperImpl implements RDFHelper {
@@ -164,22 +163,47 @@ public class RDFHelperImpl implements RDFHelper {
             for(CrimeDO value: crimeDOList) {
                 Individual crimeRecordInstance = crimeRecord.createIndividual(crimeRecord.getURI() + value.getDrNo());
 
+
                 model.add(crimeRecordInstance, hasDRNo, value.getDrNo());
                 model.add(crimeRecordInstance, reportedOn, model.createTypedLiteral(value.getDateReported()));
                 model.add(crimeRecordInstance, occurredOn, model.createTypedLiteral(value.getDateOccurred()));
                 model.add(crimeRecordInstance, hadHousePriceIndex, model.createTypedLiteral(value.getHPI()));
-                model.add(crimeRecordInstance, location, value.getLocation());
-                model.add(crimeRecordInstance, crossStreet, value.getCrossStreet());
-                model.add(crimeRecordInstance, areaCode, model.createTypedLiteral(value.getArea()));
-                model.add(crimeRecordInstance, areaDescription, value.getAreaName());
-                model.add(crimeRecordInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
-                model.add(crimeRecordInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
-                model.add(crimeRecordInstance, premiseCode, model.createTypedLiteral(value.getPremise()));
-                model.add(crimeRecordInstance, premiseDescription, value.getPremiseDesc());
-                model.add(crimeRecordInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
-                model.add(crimeRecordInstance, weaponDescription, value.getWeaponDesc());
-                model.add(crimeRecordInstance, statusCode, value.getStatus());
-                model.add(crimeRecordInstance, statusDescription, value.getStatusDesc());
+                if (!value.getLocation().equals("")) {
+                    model.add(crimeRecordInstance, location, value.getLocation());
+                }
+                if (!value.getCrossStreet().equals("")) {
+                    model.add(crimeRecordInstance, crossStreet, value.getCrossStreet());
+                }
+                if (value.getArea() != 0) {
+                    model.add(crimeRecordInstance, areaCode, model.createTypedLiteral(value.getArea()));
+                }
+                if (!value.getAreaName().equals("")) {
+                    model.add(crimeRecordInstance, areaDescription, value.getAreaName());
+                }
+                if (value.getCrimeCodes().get(0) != 0) {
+                    model.add(crimeRecordInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
+                }
+                if (!value.getPrimaryCrimeDesc().equals("")) {
+                    model.add(crimeRecordInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
+                }
+                if (value.getPremise() != 0) {
+                    model.add(crimeRecordInstance, premiseCode, model.createTypedLiteral(value.getPremise()));
+                }
+                if (!value.getPremiseDesc().equals("")) {
+                    model.add(crimeRecordInstance, premiseDescription, value.getPremiseDesc());
+                }
+                if (value.getWeapon() != 0) {
+                    model.add(crimeRecordInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
+                }
+                if (!value.getWeaponDesc().equals("")) {
+                    model.add(crimeRecordInstance, weaponDescription, value.getWeaponDesc());
+                }
+                if (!value.getStatus().equals("")) {
+                    model.add(crimeRecordInstance, statusCode, value.getStatus());
+                }
+                if (!value.getStatusDesc().equals("")) {
+                    model.add(crimeRecordInstance, statusDescription, value.getStatusDesc());
+                }
 
                 pb.step();
             }
