@@ -19,7 +19,8 @@ public class RDFHelperImpl implements RDFHelper {
     static final String crimeDS = "https://data.lacity.org#";
     static final String housingDS = "https://www.zillow.com/research/data#";
     private static final Path ROOT_PATH = FileSystems.getDefault().getPath("").toAbsolutePath();
-    OntModel model = ModelFactory.createOntologyModel();
+    private static final String duURI = "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#";
+    OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF);
     HashMap<String, Individual> instanceHashMap = new HashMap<>();
 
     enum ClassNames {
@@ -51,6 +52,7 @@ public class RDFHelperImpl implements RDFHelper {
     private void initModel() {
         model.setNsPrefix("cds", crimeDS);
         model.setNsPrefix("hds", housingDS);
+        model.setNsPrefix("du", duURI);
 
     }
 
@@ -58,16 +60,32 @@ public class RDFHelperImpl implements RDFHelper {
         // Create classes
         OntClass crimeRecord = model.createClass(ClassNames.crimeRecord.getUri());
         crimeRecord.addComment("One incident of crime in the city of Los Angeles", "EN");
+
         OntClass areaInfo = model.createClass(ClassNames.area.getUri());
         areaInfo.addComment("The LAPD has 21 Community Police Stations referred to as Geographic Areas within the department", "EN");
+        areaInfo.addSuperClass(crimeRecord);
+
         OntClass crimeInfo = model.createClass(ClassNames.crime.getUri());
         crimeInfo.addComment("Indicates the crime committed", "EN");
+        crimeInfo.addSuperClass(crimeRecord);
+
         OntClass premiseInfo = model.createClass(ClassNames.premise.getUri());
         premiseInfo.addComment("The type of structure, vehicle, or location where the crime took place", "EN");
+        premiseInfo.addSuperClass(crimeRecord);
+
         OntClass weaponInfo = model.createClass(ClassNames.weapon.getUri());
         weaponInfo.addComment("The type of weapon used in the crime", "EN");
+        weaponInfo.addSuperClass(crimeRecord);
+
         OntClass statusInfo = model.createClass(ClassNames.status.getUri());
         statusInfo.addComment("Status of the case", "EN");
+        statusInfo.addSuperClass(crimeRecord);
+
+        crimeRecord.addSubClass(areaInfo);
+        crimeRecord.addSubClass(crimeInfo);
+        crimeRecord.addSubClass(premiseInfo);
+        crimeRecord.addSubClass(weaponInfo);
+        crimeRecord.addSubClass(statusInfo);
 
         // create Properties
         ObjectProperty hasDRNo = model.createObjectProperty(PropertyNames.hasDRNo.getUri());
@@ -172,7 +190,8 @@ public class RDFHelperImpl implements RDFHelper {
 
         int l = crimeDOList.size();
         try (ProgressBar pb = new ProgressBar("Parsing records to model", l)) {
-            for(CrimeDO value: crimeDOList) {
+            for(int i = 0; i<=100; i++) {
+                CrimeDO value = crimeDOList.get(i);
                 Individual crimeRecordInstance = crimeRecord.createIndividual(crimeRecord.getURI() + value.getDrNo());
                 Individual areaInstance;
                 Individual crimeInstance;
