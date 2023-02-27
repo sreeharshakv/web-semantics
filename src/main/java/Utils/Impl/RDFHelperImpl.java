@@ -20,7 +20,6 @@ public class RDFHelperImpl implements RDFHelper {
     static final String housingDS = "https://www.zillow.com/research/data#";
     private static final Path ROOT_PATH = FileSystems.getDefault().getPath("").toAbsolutePath();
     OntModel model = ModelFactory.createOntologyModel();
-    HashMap<String, Individual> instanceHashMap = new HashMap<>();
 
     enum ClassNames {
         crimeRecord, area, crime, premise, weapon, status, location;
@@ -58,16 +57,6 @@ public class RDFHelperImpl implements RDFHelper {
         // Create classes
         OntClass crimeRecord = model.createClass(ClassNames.crimeRecord.getUri());
         crimeRecord.addComment("One incident of crime in the city of Los Angeles", "EN");
-        OntClass areaInfo = model.createClass(ClassNames.area.getUri());
-        areaInfo.addComment("The LAPD has 21 Community Police Stations referred to as Geographic Areas within the department", "EN");
-        OntClass crimeInfo = model.createClass(ClassNames.crime.getUri());
-        crimeInfo.addComment("Indicates the crime committed", "EN");
-        OntClass premiseInfo = model.createClass(ClassNames.premise.getUri());
-        premiseInfo.addComment("The type of structure, vehicle, or location where the crime took place", "EN");
-        OntClass weaponInfo = model.createClass(ClassNames.weapon.getUri());
-        weaponInfo.addComment("The type of weapon used in the crime", "EN");
-        OntClass statusInfo = model.createClass(ClassNames.status.getUri());
-        statusInfo.addComment("Status of the case", "EN");
 
         // create Properties
         ObjectProperty hasDRNo = model.createObjectProperty(PropertyNames.hasDRNo.getUri());
@@ -91,12 +80,12 @@ public class RDFHelperImpl implements RDFHelper {
 
         ObjectProperty areaCode = model.createObjectProperty(PropertyNames.areaCode.getUri());
         areaCode.addComment("These Geographic Areas are sequentially numbered from 1-21 indicating the CPS", "EN");
-        areaCode.addDomain(areaInfo);
+        areaCode.addDomain(crimeRecord);
         areaCode.addRange(XSD.positiveInteger);
 
         ObjectProperty areaDescription = model.createObjectProperty(PropertyNames.areaDescription.getUri());
         areaDescription.addComment("The 21 Geographic Areas or Patrol Divisions are also given a name designation that references a landmark or the surrounding community that it is responsible for.", "EN");
-        areaDescription.addDomain(areaInfo);
+        areaDescription.addDomain(crimeRecord);
         areaDescription.addRange(XSD.xstring);
 
         ObjectProperty crime = model.createObjectProperty(PropertyNames.crime.getUri());
@@ -105,12 +94,12 @@ public class RDFHelperImpl implements RDFHelper {
 
         ObjectProperty crimeCode = model.createObjectProperty(PropertyNames.crimeCode.getUri());
         crimeCode.addComment("Primary Crime Code", "EN");
-        crimeCode.addDomain(crimeInfo);
+        crimeCode.addDomain(crimeRecord);
         crimeCode.addRange(XSD.positiveInteger);
 
         ObjectProperty primaryCrimeDescription = model.createObjectProperty(PropertyNames.primaryCrimeDescription.getUri());
         primaryCrimeDescription.addComment("Defines the Crime Code provided", "EN");
-        primaryCrimeDescription.addDomain(crimeInfo);
+        primaryCrimeDescription.addDomain(crimeRecord);
         primaryCrimeDescription.addRange(XSD.xstring);
 
         ObjectProperty premise = model.createObjectProperty(PropertyNames.premise.getUri());
@@ -119,12 +108,12 @@ public class RDFHelperImpl implements RDFHelper {
 
         ObjectProperty premiseCode = model.createObjectProperty(PropertyNames.premiseCode.getUri());
         premiseCode.addComment("Premise Code", "EN");
-        premiseCode.addDomain(premiseInfo);
+        premiseCode.addDomain(crimeRecord);
         premiseCode.addRange(XSD.positiveInteger);
 
         ObjectProperty premiseDescription = model.createObjectProperty(PropertyNames.premiseDescription.getUri());
         premiseDescription.addComment("Defines the Premise Code provided", "EN");
-        premiseDescription.addDomain(premiseInfo);
+        premiseDescription.addDomain(crimeRecord);
         premiseDescription.addRange(XSD.xstring);
 
         ObjectProperty usingWeapon = model.createObjectProperty(PropertyNames.usingWeapon.getUri());
@@ -133,12 +122,12 @@ public class RDFHelperImpl implements RDFHelper {
 
         ObjectProperty weaponCode = model.createObjectProperty(PropertyNames.weaponCode.getUri());
         weaponCode.addComment("Weapon Code", "EN");
-        weaponCode.addDomain(weaponInfo);
+        weaponCode.addDomain(crimeRecord);
         weaponCode.addRange(XSD.positiveInteger);
 
         ObjectProperty weaponDescription = model.createObjectProperty(PropertyNames.weaponDescription.getUri());
         weaponDescription.addComment("Defines the Weapon Used Code provided", "EN");
-        weaponDescription.addDomain(weaponInfo);
+        weaponDescription.addDomain(crimeRecord);
         weaponDescription.addRange(XSD.xstring);
 
         ObjectProperty currentStatus = model.createObjectProperty(PropertyNames.currentStatus.getUri());
@@ -147,12 +136,12 @@ public class RDFHelperImpl implements RDFHelper {
 
         ObjectProperty statusCode = model.createObjectProperty(PropertyNames.statusCode.getUri());
         statusCode.addComment("Status Code(IC is the default)", "EN");
-        statusCode.addDomain(statusInfo);
+        statusCode.addDomain(crimeRecord);
         statusCode.addRange(XSD.xstring);
 
         ObjectProperty statusDescription = model.createObjectProperty(PropertyNames.statusDescription.getUri());
         statusDescription.addComment("Defines the Status Code provided", "EN");
-        statusDescription.addDomain(statusInfo);
+        statusDescription.addDomain(crimeRecord);
         statusDescription.addRange(XSD.xstring);
 
         ObjectProperty location = model.createObjectProperty(PropertyNames.location.getUri());
@@ -174,91 +163,27 @@ public class RDFHelperImpl implements RDFHelper {
         try (ProgressBar pb = new ProgressBar("Parsing records to model", l)) {
             for(CrimeDO value: crimeDOList) {
                 Individual crimeRecordInstance = crimeRecord.createIndividual(crimeRecord.getURI() + value.getDrNo());
-                Individual areaInstance;
-                Individual crimeInstance;
-                Individual premiseInstance;
-                Individual weaponInstance;
-                Individual statusInstance;
 
                 model.add(crimeRecordInstance, hasDRNo, value.getDrNo());
                 model.add(crimeRecordInstance, reportedOn, model.createTypedLiteral(value.getDateReported()));
                 model.add(crimeRecordInstance, occurredOn, model.createTypedLiteral(value.getDateOccurred()));
                 model.add(crimeRecordInstance, hadHousePriceIndex, model.createTypedLiteral(value.getHPI()));
-                if (!value.getLocation().equals("")) {
-                    model.add(crimeRecordInstance, location, value.getLocation());
-                }
-                if (!value.getCrossStreet().equals("")) {
-                    model.add(crimeRecordInstance, crossStreet, value.getCrossStreet());
-                }
-
-                if (value.getArea() != 0 && !value.getAreaName().equals("")) {
-                    if (!instanceHashMap.containsKey(areaInfo.getURI() + value.getArea())) {
-                        areaInstance = createInstanceIfAbsent(areaInfo, areaInfo.getURI() + value.getArea());
-                        model.add(areaInstance, areaCode, model.createTypedLiteral(value.getArea()));
-                        model.add(areaInstance, areaDescription, value.getAreaName());
-                        instanceHashMap.replace(areaInstance.getURI(), areaInstance);
-                    } else {
-                        areaInstance = instanceHashMap.get(areaInfo.getURI() + value.getArea());
-                    }
-                    model.add(crimeRecordInstance, inArea, areaInstance);
-                }
-
-                if (value.getCrimeCodes().get(0) != 0  && !value.getPrimaryCrimeDesc().equals("")) {
-                    if (!instanceHashMap.containsKey(crimeInfo.getURI() + value.getCrimeCodes().get(0))) {
-                        crimeInstance = createInstanceIfAbsent(crimeInfo, crimeInfo.getURI() + value.getCrimeCodes().get(0));
-                        model.add(crimeInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
-                        model.add(crimeInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
-                        instanceHashMap.replace(crimeInstance.getURI(), crimeInstance);
-                    } else {
-                        crimeInstance = instanceHashMap.get(crimeInfo.getURI() + value.getCrimeCodes().get(0));
-                    }
-                    model.add(crimeRecordInstance, crime, crimeInstance);
-                }
-
-                if (value.getPremise() != 0 && !value.getPremiseDesc().equals("")) {
-                    if (!instanceHashMap.containsKey(premiseInfo.getURI() + value.getPremise())) {
-                        premiseInstance = createInstanceIfAbsent(premiseInfo, premiseInfo.getURI() + value.getPremise());
-                        model.add(premiseInstance, premiseCode, model.createTypedLiteral(value.getPremise()));
-                        model.add(premiseInstance, premiseDescription, value.getPremiseDesc());
-                        instanceHashMap.replace(premiseInstance.getURI(), premiseInstance);
-                    } else {
-                        premiseInstance = instanceHashMap.get(premiseInfo.getURI() + value.getPremise());
-                    }
-                    model.add(crimeRecordInstance, premise, premiseInstance);
-                }
-
-                if (value.getWeapon() != 0 && !value.getWeaponDesc().equals("")) {
-                    if (!instanceHashMap.containsKey(weaponInfo.getURI() + value.getWeapon())) {
-                        weaponInstance = createInstanceIfAbsent(weaponInfo, weaponInfo.getURI() + value.getWeapon());
-                        model.add(weaponInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
-                        model.add(weaponInstance, weaponDescription, value.getWeaponDesc());
-                        instanceHashMap.replace(weaponInstance.getURI(), weaponInstance);
-                    } else {
-                        weaponInstance = instanceHashMap.get(weaponInfo.getURI() + value.getWeapon());
-                    }
-                    model.add(crimeRecordInstance, usingWeapon, weaponInstance);
-                }
-
-                if (!value.getStatus().equals("") && !value.getStatusDesc().equals("")) {
-                    if (!instanceHashMap.containsKey(statusInfo.getURI() + value.getStatus())) {
-                        statusInstance = createInstanceIfAbsent(statusInfo, statusInfo.getURI() + value.getStatus());
-                        model.add(statusInstance, statusCode, value.getStatus());
-                        model.add(statusInstance, statusDescription, value.getStatusDesc());
-                        instanceHashMap.replace(statusInstance.getURI(), statusInstance);
-                    } else {
-                        statusInstance = instanceHashMap.get(statusInfo.getURI() + value.getStatus());
-                    }
-                    model.add(crimeRecordInstance, currentStatus, statusInstance);
-                }
+                model.add(crimeRecordInstance, location, value.getLocation());
+                model.add(crimeRecordInstance, crossStreet, value.getCrossStreet());
+                model.add(crimeRecordInstance, areaCode, model.createTypedLiteral(value.getArea()));
+                model.add(crimeRecordInstance, areaDescription, value.getAreaName());
+                model.add(crimeRecordInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
+                model.add(crimeRecordInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
+                model.add(crimeRecordInstance, premiseCode, model.createTypedLiteral(value.getPremise()));
+                model.add(crimeRecordInstance, premiseDescription, value.getPremiseDesc());
+                model.add(crimeRecordInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
+                model.add(crimeRecordInstance, weaponDescription, value.getWeaponDesc());
+                model.add(crimeRecordInstance, statusCode, value.getStatus());
+                model.add(crimeRecordInstance, statusDescription, value.getStatusDesc());
 
                 pb.step();
             }
         }
-    }
-
-    public Individual createInstanceIfAbsent(OntClass ontClass, String uri) {
-        instanceHashMap.putIfAbsent(uri, ontClass.createIndividual(uri));
-        return instanceHashMap.get(uri);
     }
 
     public void exportModelToRDFFile() {
