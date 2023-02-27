@@ -184,59 +184,72 @@ public class RDFHelperImpl implements RDFHelper {
                 model.add(crimeRecordInstance, reportedOn, model.createTypedLiteral(value.getDateReported()));
                 model.add(crimeRecordInstance, occurredOn, model.createTypedLiteral(value.getDateOccurred()));
                 model.add(crimeRecordInstance, hadHousePriceIndex, model.createTypedLiteral(value.getHPI()));
-                model.add(crimeRecordInstance, location, value.getLocation());
-                model.add(crimeRecordInstance, crossStreet, value.getCrossStreet());
-
-                if(!instanceHashMap.containsKey(areaInfo.getURI() + value.getArea())) {
-                    areaInstance = createInstanceIfAbsent(areaInfo, areaInfo.getURI() + value.getArea());
-                    model.add(areaInstance, areaCode, value.getArea());
-                    model.add(areaInstance, areaDescription, value.getAreaName());
-                    instanceHashMap.replace(areaInstance.getURI(), areaInstance);
-                } else {
-                    areaInstance = instanceHashMap.get(areaInfo.getURI() + value.getArea());
+                if (!value.getLocation().equals("")) {
+                    model.add(crimeRecordInstance, location, value.getLocation());
+                }
+                if (!value.getCrossStreet().equals("")) {
+                    model.add(crimeRecordInstance, crossStreet, value.getCrossStreet());
                 }
 
-                if(!instanceHashMap.containsKey(crimeInfo.getURI() + value.getCrimeCodes().get(0))) {
-                    crimeInstance = createInstanceIfAbsent(crimeInfo, crimeInfo.getURI() + value.getCrimeCodes().get(0));
-                    model.add(crimeInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
-                    model.add(crimeInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
-                    instanceHashMap.replace(crimeInstance.getURI(), crimeInstance);
-                } else {
-                    crimeInstance = instanceHashMap.get(crimeInfo.getURI() + value.getCrimeCodes().get(0));
+                if (value.getArea() != 0 && !value.getAreaName().equals("")) {
+                    if (!instanceHashMap.containsKey(areaInfo.getURI() + value.getArea())) {
+                        areaInstance = createInstanceIfAbsent(areaInfo, areaInfo.getURI() + value.getArea());
+                        model.add(areaInstance, areaCode, model.createTypedLiteral(value.getArea()));
+                        model.add(areaInstance, areaDescription, value.getAreaName());
+                        instanceHashMap.replace(areaInstance.getURI(), areaInstance);
+                    } else {
+                        areaInstance = instanceHashMap.get(areaInfo.getURI() + value.getArea());
+                    }
+                    model.add(crimeRecordInstance, inArea, areaInstance);
                 }
 
-                if(!instanceHashMap.containsKey(premiseInfo.getURI() + value.getPremise())) {
-                    premiseInstance = createInstanceIfAbsent(premiseInfo, premiseInfo.getURI() + value.getPremise());
-                    model.add(premiseInstance, premiseCode, model.createTypedLiteral(value.getPremise()));
-                    model.add(premiseInstance, premiseDescription, value.getPremiseDesc());
-                    instanceHashMap.replace(premiseInstance.getURI(), premiseInstance);
-                } else {
-                    premiseInstance = instanceHashMap.get(premiseInfo.getURI() + value.getPremise());
+                if (value.getCrimeCodes().get(0) != 0  && !value.getPrimaryCrimeDesc().equals("")) {
+                    if (!instanceHashMap.containsKey(crimeInfo.getURI() + value.getCrimeCodes().get(0))) {
+                        crimeInstance = createInstanceIfAbsent(crimeInfo, crimeInfo.getURI() + value.getCrimeCodes().get(0));
+                        model.add(crimeInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
+                        model.add(crimeInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
+                        instanceHashMap.replace(crimeInstance.getURI(), crimeInstance);
+                    } else {
+                        crimeInstance = instanceHashMap.get(crimeInfo.getURI() + value.getCrimeCodes().get(0));
+                    }
+                    model.add(crimeRecordInstance, crime, crimeInstance);
                 }
 
-                if(!instanceHashMap.containsKey(weaponInfo.getURI() + value.getWeapon())) {
-                    weaponInstance = createInstanceIfAbsent(weaponInfo, weaponInfo.getURI() + value.getWeapon());
-                    model.add(weaponInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
-                    model.add(weaponInstance, weaponDescription, value.getWeaponDesc());
-                    instanceHashMap.replace(weaponInstance.getURI(), weaponInstance);
-                } else {
-                    weaponInstance = instanceHashMap.get(weaponInfo.getURI() + value.getWeapon());
+                if (value.getPremise() != 0 && !value.getPremiseDesc().equals("")) {
+                    if (!instanceHashMap.containsKey(premiseInfo.getURI() + value.getPremise())) {
+                        premiseInstance = createInstanceIfAbsent(premiseInfo, premiseInfo.getURI() + value.getPremise());
+                        model.add(premiseInstance, premiseCode, model.createTypedLiteral(value.getPremise()));
+                        model.add(premiseInstance, premiseDescription, value.getPremiseDesc());
+                        instanceHashMap.replace(premiseInstance.getURI(), premiseInstance);
+                    } else {
+                        premiseInstance = instanceHashMap.get(premiseInfo.getURI() + value.getPremise());
+                    }
+                    model.add(crimeRecordInstance, premise, premiseInstance);
                 }
 
-                if(!instanceHashMap.containsKey(statusInfo.getURI() + value.getStatus())) {
-                    statusInstance = createInstanceIfAbsent(statusInfo, statusInfo.getURI() + value.getStatus());
-                    model.add(statusInstance, statusCode, value.getStatus());
-                    model.add(statusInstance, statusDescription, value.getStatusDesc());
-                    instanceHashMap.replace(statusInstance.getURI(), statusInstance);
-                } else {
-                    statusInstance = instanceHashMap.get(statusInfo.getURI() + value.getStatus());
+                if (value.getWeapon() != 0 && !value.getWeaponDesc().equals("")) {
+                    if (!instanceHashMap.containsKey(weaponInfo.getURI() + value.getWeapon())) {
+                        weaponInstance = createInstanceIfAbsent(weaponInfo, weaponInfo.getURI() + value.getWeapon());
+                        model.add(weaponInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
+                        model.add(weaponInstance, weaponDescription, value.getWeaponDesc());
+                        instanceHashMap.replace(weaponInstance.getURI(), weaponInstance);
+                    } else {
+                        weaponInstance = instanceHashMap.get(weaponInfo.getURI() + value.getWeapon());
+                    }
+                    model.add(crimeRecordInstance, usingWeapon, weaponInstance);
                 }
 
-                model.add(crimeRecordInstance, inArea, areaInstance);
-                model.add(crimeRecordInstance, crime, crimeInstance);
-                model.add(crimeRecordInstance, premise, premiseInstance);
-                model.add(crimeRecordInstance, usingWeapon, weaponInstance);
-                model.add(crimeRecordInstance, currentStatus, statusInstance);
+                if (!value.getStatus().equals("") && !value.getStatusDesc().equals("")) {
+                    if (!instanceHashMap.containsKey(statusInfo.getURI() + value.getStatus())) {
+                        statusInstance = createInstanceIfAbsent(statusInfo, statusInfo.getURI() + value.getStatus());
+                        model.add(statusInstance, statusCode, value.getStatus());
+                        model.add(statusInstance, statusDescription, value.getStatusDesc());
+                        instanceHashMap.replace(statusInstance.getURI(), statusInstance);
+                    } else {
+                        statusInstance = instanceHashMap.get(statusInfo.getURI() + value.getStatus());
+                    }
+                    model.add(crimeRecordInstance, currentStatus, statusInstance);
+                }
 
                 pb.step();
             }

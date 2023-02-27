@@ -53,7 +53,7 @@ public class CSVHelperImpl implements CSVHelper {
             for (String[] record : data) {
                 if (!crimeDOMap.containsKey(record[0]) && !record[0].equalsIgnoreCase("DR_NO")) {
                     CrimeDO crimeDO = new CrimeDO(record);
-                    if (addHousingInfoToCrimeDO(crimeDO, housingPriceDOMap.get(crimeDO.getAreaName()))) {
+                    if (crimeDO.isValid() && addHousingInfoToCrimeDO(crimeDO, housingPriceDOMap.get(crimeDO.getAreaName()))) {
                         crimeDOMap.put(crimeDO.getDrNo(), crimeDO);
                     }
                 }
