@@ -52,14 +52,14 @@ public class RDFHelperImpl implements RDFHelper {
         List.of(110, 113).forEach(val -> crimeMap.put(val, ClassNames.Homicide));
         List.of(121, 122, 815, 820, 821).forEach(val -> crimeMap.put(val, ClassNames.Rape));
         List.of(210, 220).forEach(val -> crimeMap.put(val, ClassNames.Robbery));
-        List.of(230, 231, 235).forEach(val -> crimeMap.put(val, ClassNames.AggravatedAssault));
-        List.of(435, 436, 437, 622, 623, 624, 625).forEach(val -> crimeMap.put(val, ClassNames.SimpleAssault));
-        List.of(236, 250, 251, 761, 626, 627, 647, 763, 928, 930).forEach(val -> crimeMap.put(val, ClassNames.DomesticViolence));
-        List.of(310, 320).forEach(val -> crimeMap.put(val, ClassNames.Burglary));
-        List.of(510, 520, 433).forEach(val -> crimeMap.put(val, ClassNames.MVT));
+        List.of(111, 230, 231, 235, 236, 435, 436).forEach(val -> crimeMap.put(val, ClassNames.AggravatedAssault));
+        List.of(234, 622, 623, 624, 625).forEach(val -> crimeMap.put(val, ClassNames.SimpleAssault));
+        List.of(236, 250, 251, 761, 626, 627, 647, 763, 928, 930, 624).forEach(val -> crimeMap.put(val, ClassNames.DomesticViolence));
+        List.of(220, 310, 320).forEach(val -> crimeMap.put(val, ClassNames.Burglary));
+        List.of(510, 520, 433, 331).forEach(val -> crimeMap.put(val, ClassNames.MVT));
         List.of(330, 331, 410, 420, 421).forEach(val -> crimeMap.put(val, ClassNames.BTFV));
-        List.of(350, 351, 352, 353, 450, 451, 452, 453, 341, 343, 345, 440, 441, 442, 443, 444, 445, 470, 471, 472, 473, 474, 475, 480, 485, 487, 491).forEach(val -> crimeMap.put(val, ClassNames.Theft));
-        List.of(926).forEach(val -> crimeMap.put(val, ClassNames.OtherCrimes));
+        List.of(510,520, 522, 430,349, 350, 351, 352, 446, 353, 354, 450, 451, 452, 453, 341, 343, 345, 440, 441, 442, 443, 444, 445, 470, 471, 472, 473, 474, 475, 480, 485, 487, 491, 347).forEach(val -> crimeMap.put(val, ClassNames.Theft));
+        List.of(237, 431, 432, 434, 437, 438, 439, 486, 521, 926).forEach(val -> crimeMap.put(val, ClassNames.OtherCrimes));
     }
 
     public void createModelFromCrimeDOMap(List<CrimeDO> crimeDOList) {
@@ -322,6 +322,7 @@ public class RDFHelperImpl implements RDFHelper {
                             case Theft ->
                                     crimeInstance = createInstanceIfAbsent(theft, crimeDS + value.getCrimeCodes().get(0));
                             default -> {
+                                System.out.println(value.getCrimeCodes().get(0) + " " + value.getPrimaryCrimeDesc());
                                 continue;
                             }
                         }
