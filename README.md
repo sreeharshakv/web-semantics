@@ -25,5 +25,5 @@ datasets into semantic data in .rdf or .owl format
 
 `java -Xmx8192m -jar target/web-semantics-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
-### The output RDF File **Crimes&RealEstate.rdf** should be generated in deliverables folder
+### The output OWL File **Crimes&RealEstate.rdf** should be generated in deliverables folder
 
