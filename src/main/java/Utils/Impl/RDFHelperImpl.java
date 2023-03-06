@@ -32,7 +32,7 @@ public class RDFHelperImpl implements RDFHelper {
         PropertyCrime, PersonalCrime, OtherCrimes, Homicide, Rape, Robbery, Assault, AggravatedAssault, SimpleAssault, DomesticViolence, Burglary, MVT, BTFV, Theft,
 
         // weapon subclasses
-        Combat, HandToHand, Ranged, Explosives, Firearms, Automatic, SemiAutomatic, Manual, SpecialWeapons;
+        CombatWeapons, HandToHand, Ranged, Explosives, Firearms, Automatic, SemiAutomatic, Manual, SpecialWeapons;
 
         String getUri() {
             return crimeDS + this.name();
@@ -40,8 +40,8 @@ public class RDFHelperImpl implements RDFHelper {
     }
 
     enum PropertyNames {
-        hasDRNo, reportedOn, occurredOn, inArea, areaCode, areaDescription, crimeOccurred, crimeCode, primaryCrimeDescription, hasPremise, premiseCode,
-        premiseDescription, usingWeapon, weaponCode, weaponDescription, hasCurrentStatus, statusCode, statusDescription, atLocation, location, crossStreet, hadHousingPriceIndex;
+        hasDRNo, reportedOn, occurredOn, inArea, areaCode, areaDescription, crimeOccurred, crimeCode, crimeDescription, hasPremise, premiseCode,
+        premiseDescription, usingWeapon, weaponCode, weaponDescription, hasCurrentStatus, statusCode, statusDescription, atLocation, atCrossStreet, hadHousingPriceIndex;
 
         String getUri() {
             if (this.name().equalsIgnoreCase("hasHousingPriceIndex")) {
@@ -174,7 +174,7 @@ public class RDFHelperImpl implements RDFHelper {
         OntClass weaponInfo = model.createClass(ClassNames.Weapon.getUri());
         weaponInfo.addComment("The type of weapon used in the crime", "EN");
 
-        OntClass combat = model.createClass(ClassNames.Combat.getUri());
+        OntClass combat = model.createClass(ClassNames.CombatWeapons.getUri());
         combat.addComment("Combat Weapons, both hand to hand and ranged weapons", "EN");
         combat.addSuperClass(weaponInfo);
 
@@ -264,7 +264,7 @@ public class RDFHelperImpl implements RDFHelper {
         crimeCode.addDomain(crimeInfo);
         crimeCode.addRange(XSD.positiveInteger);
 
-        ObjectProperty crimeDescription = model.createObjectProperty(PropertyNames.primaryCrimeDescription.getUri());
+        ObjectProperty crimeDescription = model.createObjectProperty(PropertyNames.crimeDescription.getUri());
         crimeDescription.addComment("Defines the Crime Code provided", "EN");
         crimeDescription.addDomain(crimeInfo);
         crimeDescription.addRange(XSD.xstring);
@@ -311,12 +311,12 @@ public class RDFHelperImpl implements RDFHelper {
         statusDescription.addDomain(statusInfo);
         statusDescription.addRange(XSD.xstring);
 
-        ObjectProperty location = model.createObjectProperty(PropertyNames.location.getUri());
+        ObjectProperty location = model.createObjectProperty(PropertyNames.atLocation.getUri());
         location.addComment("Street address of crime incident rounded to the nearest hundred block to maintain anonymity.", "EN");
         location.addDomain(crimeRecord);
         location.addRange(XSD.xstring);
 
-        ObjectProperty crossStreet = model.createObjectProperty(PropertyNames.crossStreet.getUri());
+        ObjectProperty crossStreet = model.createObjectProperty(PropertyNames.atCrossStreet.getUri());
         crossStreet.addComment("Cross Street of rounded Address", "EN");
         crossStreet.addDomain(crimeRecord);
         crossStreet.addRange(XSD.xstring);
