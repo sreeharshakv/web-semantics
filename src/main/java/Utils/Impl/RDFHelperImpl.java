@@ -63,11 +63,11 @@ public class RDFHelperImpl implements RDFHelper {
         List.of(220, 310, 320).forEach(val -> crimeMap.put(val, ClassNames.Burglary));
         List.of(510, 520, 433, 331).forEach(val -> crimeMap.put(val, ClassNames.MVT));
         List.of(330, 331, 410, 420, 421).forEach(val -> crimeMap.put(val, ClassNames.BTFV));
-        List.of(510,520, 522, 430,349, 350, 351, 352, 446, 353, 354, 450, 451, 452, 453, 341, 343, 345, 440, 441, 442, 443, 444, 445, 470, 471, 472, 473, 474, 475, 480, 485, 487, 491, 347).forEach(val -> crimeMap.put(val, ClassNames.Theft));
+        List.of(510, 520, 522, 430,349, 350, 351, 352, 446, 353, 354, 450, 451, 452, 453, 341, 343, 345, 440, 441, 442, 443, 444, 445, 470, 471, 472, 473, 474, 475, 480, 485, 487, 491, 347).forEach(val -> crimeMap.put(val, ClassNames.Theft));
         List.of(237, 431, 432, 434, 437, 438, 439, 486, 521, 926).forEach(val -> crimeMap.put(val, ClassNames.OtherCrimes));
 
         weaponMap = new HashMap<>();
-        List.of( 204, 207, 512, 308, 200, 201, 202, 203, 205, 206,207, 208, 209,210, 211, 212, 213, 214, 215, 216,217, 218, 219, 220, 221, 223, 300, 301, 302, 303, 304, 305, 308, 309, 312, 400).forEach(val -> crimeMap.put(val, ClassNames.HandToHand));
+        List.of(204, 207, 512, 308, 200, 201, 202, 203, 205, 206, 207, 208, 209,210, 211, 212, 213, 214, 215, 216,217, 218, 219, 220, 221, 223, 300, 301, 302, 303, 304, 305, 308, 309, 312, 400).forEach(val -> crimeMap.put(val, ClassNames.HandToHand));
         List.of(306, 310, 502, 506).forEach(val -> crimeMap.put(val, ClassNames.Ranged));
         List.of(501, 505).forEach(val -> crimeMap.put(val, ClassNames.Explosives));
         List.of(108, 115).forEach(val -> crimeMap.put(val, ClassNames.Automatic));
@@ -337,9 +337,7 @@ public class RDFHelperImpl implements RDFHelper {
 
         int l = crimeDOList.size();
         try (ProgressBar pb = new ProgressBar("Parsing records to model", l)) {
-            // todo: revert this after testing
-            for(int i = 0; i<=100; i++) {
-                CrimeDO value = crimeDOList.get(i);
+            for (CrimeDO value: crimeDOList) {
                 Individual crimeRecordInstance = crimeRecord.createIndividual(crimeDS + value.getDrNo());
                 Individual areaInstance;
                 Individual crimeInstance;
