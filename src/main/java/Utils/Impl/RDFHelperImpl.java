@@ -22,9 +22,13 @@ public class RDFHelperImpl implements RDFHelper {
     private static final String duURI = "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#";
     OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF);
     HashMap<String, Individual> instanceHashMap = new HashMap<>();
+    static HashMap<Integer, ClassNames> crimeMap;
 
     enum ClassNames {
-        CrimeRecord, Area, Crime, PropertyCrime, PersonalCrime, Premise, Weapon, Status;
+        CrimeRecord, Area, Crime, Premise, Weapon, Status, Default,
+
+        //crime subclasses
+        PropertyCrime, PersonalCrime, OtherCrimes, Homicide, Rape, Robbery, Assault, AggravatedAssault, SimpleAssault, DomesticViolence, Burglary, MVT, BTFV, Theft;
 
         String getUri() {
             return crimeDS + this.name();
@@ -43,6 +47,21 @@ public class RDFHelperImpl implements RDFHelper {
         }
     }
 
+    static {
+        crimeMap = new HashMap<>();
+        List.of(110, 113).forEach(val -> crimeMap.put(val, ClassNames.Homicide));
+        List.of(121, 122, 815, 820, 821).forEach(val -> crimeMap.put(val, ClassNames.Rape));
+        List.of(210, 220).forEach(val -> crimeMap.put(val, ClassNames.Robbery));
+        List.of(230, 231, 235).forEach(val -> crimeMap.put(val, ClassNames.AggravatedAssault));
+        List.of(435, 436, 437, 622, 623, 624, 625).forEach(val -> crimeMap.put(val, ClassNames.SimpleAssault));
+        List.of(236, 250, 251, 761, 626, 627, 647, 763, 928, 930).forEach(val -> crimeMap.put(val, ClassNames.DomesticViolence));
+        List.of(310, 320).forEach(val -> crimeMap.put(val, ClassNames.Burglary));
+        List.of(510, 520, 433).forEach(val -> crimeMap.put(val, ClassNames.MVT));
+        List.of(330, 331, 410, 420, 421).forEach(val -> crimeMap.put(val, ClassNames.BTFV));
+        List.of(350, 351, 352, 353, 450, 451, 452, 453, 341, 343, 345, 440, 441, 442, 443, 444, 445, 470, 471, 472, 473, 474, 475, 480, 485, 487, 491).forEach(val -> crimeMap.put(val, ClassNames.Theft));
+        List.of(926).forEach(val -> crimeMap.put(val, ClassNames.OtherCrimes));
+    }
+
     public void createModelFromCrimeDOMap(List<CrimeDO> crimeDOList) {
         initModel();
         populateModel(crimeDOList);
@@ -53,7 +72,6 @@ public class RDFHelperImpl implements RDFHelper {
         model.setNsPrefix("cds", crimeDS);
         model.setNsPrefix("hds", housingDS);
         model.setNsPrefix("du", duURI);
-
     }
 
     private void populateModel(List<CrimeDO> crimeDOList) {
@@ -67,16 +85,74 @@ public class RDFHelperImpl implements RDFHelper {
         OntClass crimeInfo = model.createClass(ClassNames.Crime.getUri());
         crimeInfo.addComment("Indicates the crime committed", "EN");
 
-        OntClass PropertyCrime = model.createClass(ClassNames.PropertyCrime.getUri());
-        PropertyCrime.addComment("Crimes against Property", "EN");
-        PropertyCrime.addSuperClass(crimeInfo);
+        OntClass propertyCrime = model.createClass(ClassNames.PropertyCrime.getUri());
+        propertyCrime.addComment("Crimes against Property", "EN");
+        propertyCrime.addSuperClass(crimeInfo);
 
-        OntClass PersonalCrime = model.createClass(ClassNames.PersonalCrime.getUri());
-        PersonalCrime.addComment("Crimes against People", "EN");
-        PersonalCrime.addSuperClass(crimeInfo);
+        OntClass burglary = model.createClass(ClassNames.Burglary.getUri());
+        burglary.addComment("entry into property illegally with intent to commit a crime, especially theft.", "EN");
+        burglary.addSuperClass(propertyCrime);
 
-        crimeInfo.addSubClass(PropertyCrime);
-        crimeInfo.addSubClass(PersonalCrime);
+        OntClass mvt = model.createClass(ClassNames.MVT.getUri());
+        mvt.addComment("Motor Vehicle Theft", "EN");
+        mvt.addSuperClass(propertyCrime);
+
+        OntClass btfv = model.createClass(ClassNames.BTFV.getUri());
+        btfv.addComment("Burglary or theft from motor vehicle (breaking into a vehicle)", "EN");
+        btfv.addSuperClass(propertyCrime);
+
+        OntClass other = model.createClass(ClassNames.OtherCrimes.getUri());
+        other.addComment("Other property crimes", "EN");
+        other.addSuperClass(propertyCrime);
+
+        propertyCrime.addSubClass(burglary);
+        propertyCrime.addSubClass(mvt);
+        propertyCrime.addSubClass(btfv);
+        propertyCrime.addSubClass(other);
+
+        OntClass personalCrime = model.createClass(ClassNames.PersonalCrime.getUri());
+        personalCrime.addComment("Crimes against People", "EN");
+        personalCrime.addSuperClass(crimeInfo);
+
+        OntClass homicide = model.createClass(ClassNames.Homicide.getUri());
+        homicide.addComment("The killing of one human being by another", "EN");
+        homicide.addSuperClass(personalCrime);
+
+        OntClass rape = model.createClass(ClassNames.Rape.getUri());
+        rape.addSuperClass(personalCrime);
+
+        OntClass robbery = model.createClass(ClassNames.Robbery.getUri());
+        robbery.addSuperClass(personalCrime);
+
+        OntClass assault = model.createClass(ClassNames.Assault.getUri());
+        assault.addComment("Simple and aggravated Assaults, including domestic violence", "EN");
+        assault.addSuperClass(personalCrime);
+
+        OntClass theft = model.createClass(ClassNames.Theft.getUri());
+        theft.addSuperClass(personalCrime);
+
+        OntClass simpleAssault = model.createClass(ClassNames.SimpleAssault.getUri());
+        simpleAssault.addSuperClass(assault);
+
+        OntClass aggAssault = model.createClass(ClassNames.AggravatedAssault.getUri());
+        aggAssault.addComment("Any crime that involves the attempt to murder, rob, kill, rape, or assault with a deadly or dangerous weapon", "EN");
+        aggAssault.addSuperClass(assault);
+
+        OntClass domesticViolence = model.createClass(ClassNames.DomesticViolence.getUri());
+        domesticViolence.addSuperClass(assault);
+
+        assault.addSubClass(simpleAssault);
+        assault.addSubClass(aggAssault);
+        assault.addSubClass(domesticViolence);
+
+        personalCrime.addSubClass(homicide);
+        personalCrime.addSubClass(theft);
+        personalCrime.addSubClass(rape);
+        personalCrime.addSubClass(robbery);
+        personalCrime.addSubClass(assault);
+
+        crimeInfo.addSubClass(propertyCrime);
+        crimeInfo.addSubClass(personalCrime);
 
         OntClass premiseInfo = model.createClass(ClassNames.Premise.getUri());
         premiseInfo.addComment("The type of structure, vehicle, or location where the crime took place", "EN");
@@ -225,7 +301,30 @@ public class RDFHelperImpl implements RDFHelper {
 
                 if (value.getCrimeCodes().get(0) != 0  && !value.getPrimaryCrimeDesc().equals("")) {
                     if (!instanceHashMap.containsKey(crimeDS + value.getCrimeCodes().get(0))) {
-                        crimeInstance = createInstanceIfAbsent(crimeInfo, crimeDS + value.getCrimeCodes().get(0));
+                        switch (crimeMap.getOrDefault(value.getCrimeCodes().get(0), ClassNames.Default)) {
+                            case Homicide ->
+                                    crimeInstance = createInstanceIfAbsent(homicide, crimeDS + value.getCrimeCodes().get(0));
+                            case Rape ->
+                                    crimeInstance = createInstanceIfAbsent(rape, crimeDS + value.getCrimeCodes().get(0));
+                            case Robbery ->
+                                    crimeInstance = createInstanceIfAbsent(robbery, crimeDS + value.getCrimeCodes().get(0));
+                            case AggravatedAssault ->
+                                    crimeInstance = createInstanceIfAbsent(aggAssault, crimeDS + value.getCrimeCodes().get(0));
+                            case SimpleAssault ->
+                                    crimeInstance = createInstanceIfAbsent(simpleAssault, crimeDS + value.getCrimeCodes().get(0));
+                            case DomesticViolence ->
+                                    crimeInstance = createInstanceIfAbsent(domesticViolence, crimeDS + value.getCrimeCodes().get(0));
+                            case Burglary ->
+                                    crimeInstance = createInstanceIfAbsent(burglary, crimeDS + value.getCrimeCodes().get(0));
+                            case MVT -> crimeInstance = createInstanceIfAbsent(mvt, crimeDS + value.getCrimeCodes().get(0));
+                            case BTFV ->
+                                    crimeInstance = createInstanceIfAbsent(btfv, crimeDS + value.getCrimeCodes().get(0));
+                            case Theft ->
+                                    crimeInstance = createInstanceIfAbsent(theft, crimeDS + value.getCrimeCodes().get(0));
+                            default -> {
+                                continue;
+                            }
+                        }
                         model.add(crimeInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
                         model.add(crimeInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
                         instanceHashMap.replace(crimeDS + value.getCrimeCodes().get(0), crimeInstance);
