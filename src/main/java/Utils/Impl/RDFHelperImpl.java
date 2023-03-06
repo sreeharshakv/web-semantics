@@ -23,12 +23,16 @@ public class RDFHelperImpl implements RDFHelper {
     OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM_RULE_INF);
     HashMap<String, Individual> instanceHashMap = new HashMap<>();
     static HashMap<Integer, ClassNames> crimeMap;
+    static HashMap<Integer, ClassNames> weaponMap;
 
     enum ClassNames {
         CrimeRecord, Area, Crime, Premise, Weapon, Status, Default,
 
         //crime subclasses
-        PropertyCrime, PersonalCrime, OtherCrimes, Homicide, Rape, Robbery, Assault, AggravatedAssault, SimpleAssault, DomesticViolence, Burglary, MVT, BTFV, Theft;
+        PropertyCrime, PersonalCrime, OtherCrimes, Homicide, Rape, Robbery, Assault, AggravatedAssault, SimpleAssault, DomesticViolence, Burglary, MVT, BTFV, Theft,
+
+        // weapon subclasses
+        Combat, HandToHand, Ranged, Explosives, Firearms, Automatic, SemiAutomatic, Manual, SpecialWeapons;
 
         String getUri() {
             return crimeDS + this.name();
@@ -60,6 +64,16 @@ public class RDFHelperImpl implements RDFHelper {
         List.of(330, 331, 410, 420, 421).forEach(val -> crimeMap.put(val, ClassNames.BTFV));
         List.of(510,520, 522, 430,349, 350, 351, 352, 446, 353, 354, 450, 451, 452, 453, 341, 343, 345, 440, 441, 442, 443, 444, 445, 470, 471, 472, 473, 474, 475, 480, 485, 487, 491, 347).forEach(val -> crimeMap.put(val, ClassNames.Theft));
         List.of(237, 431, 432, 434, 437, 438, 439, 486, 521, 926).forEach(val -> crimeMap.put(val, ClassNames.OtherCrimes));
+
+        weaponMap = new HashMap<>();
+        List.of( 204, 207, 512, 308, 200, 201, 202, 203, 205, 206,207, 208, 209,210, 211, 212, 213, 214, 215, 216,217, 218, 219, 220, 221, 223, 300, 301, 302, 303, 304, 305, 308, 309, 312, 400).forEach(val -> crimeMap.put(val, ClassNames.HandToHand));
+        List.of(306, 310, 502, 506).forEach(val -> crimeMap.put(val, ClassNames.Ranged));
+        List.of(501, 505).forEach(val -> crimeMap.put(val, ClassNames.Explosives));
+        List.of(108, 115).forEach(val -> crimeMap.put(val, ClassNames.Automatic));
+        List.of(109, 110, 117, 118, 119, 120, 121, 122, 123, 124).forEach(val -> crimeMap.put(val, ClassNames.SemiAutomatic));
+        List.of(101, 102, 103, 104, 105, 111, 113, 114, 116).forEach(val -> crimeMap.put(val, ClassNames.Manual));
+        List.of(112, 125,307, 504, 503, 500 , 106, 107, 511).forEach(val -> crimeMap.put(val, ClassNames.SpecialWeapons));
+
     }
 
     public void createModelFromCrimeDOMap(List<CrimeDO> crimeDOList) {
@@ -160,6 +174,54 @@ public class RDFHelperImpl implements RDFHelper {
         OntClass weaponInfo = model.createClass(ClassNames.Weapon.getUri());
         weaponInfo.addComment("The type of weapon used in the crime", "EN");
 
+        OntClass combat = model.createClass(ClassNames.Combat.getUri());
+        combat.addComment("Combat Weapons, both hand to hand and ranged weapons", "EN");
+        combat.addSuperClass(weaponInfo);
+
+        OntClass handToHand = model.createClass(ClassNames.HandToHand.getUri());
+        handToHand.addComment("A melee weapon, hand weapon or close combat weapon is any handheld weapon used in hand-to-hand combat", "EN");
+        handToHand.addSuperClass(combat);
+
+        OntClass ranged = model.createClass(ClassNames.Ranged.getUri());
+        ranged.addComment("Any weapon that can engage targets beyond hand-to-hand distance.", "EN");
+        ranged.addSuperClass(combat);
+
+        OntClass firearms = model.createClass(ClassNames.Firearms.getUri());
+        firearms.addComment("Ranged weapon that inflicts damage on targets by launching one or more projectiles", "EN");
+        firearms.addSuperClass(ranged);
+
+        OntClass automatic = model.createClass(ClassNames.Automatic.getUri());
+        automatic.addComment("An auto-loading firearm that continuously chambers and fires rounds when the trigger mechanism is actuated", "EN");
+        automatic.addSuperClass(firearms);
+
+        OntClass semiAutomatic = model.createClass(ClassNames.SemiAutomatic.getUri());
+        semiAutomatic.addComment("A firearm where the shooter pulls the trigger, one bullet is fired and a new bullet is automatically loaded", "EN");
+        semiAutomatic.addSuperClass(firearms);
+
+        OntClass manual = model.createClass(ClassNames.Manual.getUri());
+        manual.addComment("The type of weapon used in the crime", "EN");
+        manual.addSuperClass(firearms);
+
+        firearms.addSubClass(automatic);
+        firearms.addSubClass(semiAutomatic);
+        firearms.addSubClass(manual);
+
+        ranged.addSubClass(firearms);
+
+        combat.addSubClass(handToHand);
+        combat.addSubClass(ranged);
+
+        OntClass explosives = model.createClass(ClassNames.Explosives.getUri());
+        explosives.addSuperClass(weaponInfo);
+
+        OntClass specialWeapons = model.createClass(ClassNames.SpecialWeapons.getUri());
+        specialWeapons.addComment("Special Category of weapons, such as vehicle, poison, etc.", "EN");
+        specialWeapons.addSuperClass(weaponInfo);
+
+        weaponInfo.addSubClass(combat);
+        weaponInfo.addSubClass(explosives);
+        weaponInfo.addSubClass(specialWeapons);
+
         OntClass statusInfo = model.createClass(ClassNames.Status.getUri());
         statusInfo.addComment("Status of the case", "EN");
 
@@ -202,10 +264,10 @@ public class RDFHelperImpl implements RDFHelper {
         crimeCode.addDomain(crimeInfo);
         crimeCode.addRange(XSD.positiveInteger);
 
-        ObjectProperty primaryCrimeDescription = model.createObjectProperty(PropertyNames.primaryCrimeDescription.getUri());
-        primaryCrimeDescription.addComment("Defines the Crime Code provided", "EN");
-        primaryCrimeDescription.addDomain(crimeInfo);
-        primaryCrimeDescription.addRange(XSD.xstring);
+        ObjectProperty crimeDescription = model.createObjectProperty(PropertyNames.primaryCrimeDescription.getUri());
+        crimeDescription.addComment("Defines the Crime Code provided", "EN");
+        crimeDescription.addDomain(crimeInfo);
+        crimeDescription.addRange(XSD.xstring);
 
         ObjectProperty premise = model.createObjectProperty(PropertyNames.hasPremise.getUri());
         premise.addComment("The type of structure, vehicle, or location where the crime took place.", "EN");
@@ -299,7 +361,7 @@ public class RDFHelperImpl implements RDFHelper {
                     model.add(crimeRecordInstance, inArea, areaInstance);
                 }
 
-                if (value.getCrimeCodes().get(0) != 0  && !value.getPrimaryCrimeDesc().equals("")) {
+                if (value.getCrimeCodes().get(0) != 0  && !value.getCrimeDesc().equals("")) {
                     if (!instanceHashMap.containsKey(crimeDS + value.getCrimeCodes().get(0))) {
                         switch (crimeMap.getOrDefault(value.getCrimeCodes().get(0), ClassNames.Default)) {
                             case Homicide ->
@@ -316,18 +378,17 @@ public class RDFHelperImpl implements RDFHelper {
                                     crimeInstance = createInstanceIfAbsent(domesticViolence, crimeDS + value.getCrimeCodes().get(0));
                             case Burglary ->
                                     crimeInstance = createInstanceIfAbsent(burglary, crimeDS + value.getCrimeCodes().get(0));
-                            case MVT -> crimeInstance = createInstanceIfAbsent(mvt, crimeDS + value.getCrimeCodes().get(0));
+                            case MVT ->
+                                    crimeInstance = createInstanceIfAbsent(mvt, crimeDS + value.getCrimeCodes().get(0));
                             case BTFV ->
                                     crimeInstance = createInstanceIfAbsent(btfv, crimeDS + value.getCrimeCodes().get(0));
                             case Theft ->
                                     crimeInstance = createInstanceIfAbsent(theft, crimeDS + value.getCrimeCodes().get(0));
-                            default -> {
-                                System.out.println(value.getCrimeCodes().get(0) + " " + value.getPrimaryCrimeDesc());
-                                continue;
-                            }
+                            default ->
+                                    crimeInstance = createInstanceIfAbsent(crimeInfo, crimeDS + value.getCrimeCodes().get(0));
                         }
                         model.add(crimeInstance, crimeCode, model.createTypedLiteral(value.getCrimeCodes().get(0)));
-                        model.add(crimeInstance, primaryCrimeDescription, value.getPrimaryCrimeDesc());
+                        model.add(crimeInstance, crimeDescription, value.getCrimeDesc());
                         instanceHashMap.replace(crimeDS + value.getCrimeCodes().get(0), crimeInstance);
                     } else {
                         crimeInstance = instanceHashMap.get(crimeDS + value.getCrimeCodes().get(0));
@@ -349,7 +410,24 @@ public class RDFHelperImpl implements RDFHelper {
 
                 if (value.getWeapon() != 0 && !value.getWeaponDesc().equals("")) {
                     if (!instanceHashMap.containsKey(crimeDS + value.getWeapon())) {
-                        weaponInstance = createInstanceIfAbsent(weaponInfo, crimeDS + value.getWeapon());
+                        switch (weaponMap.getOrDefault(value.getWeapon(), ClassNames.Default)) {
+                            case HandToHand ->
+                                    weaponInstance = createInstanceIfAbsent(handToHand, crimeDS + value.getWeapon());
+                            case Ranged ->
+                                    weaponInstance = createInstanceIfAbsent(ranged, crimeDS + value.getWeapon());
+                            case Explosives ->
+                                    weaponInstance = createInstanceIfAbsent(explosives, crimeDS + value.getWeapon());
+                            case Automatic ->
+                                    weaponInstance = createInstanceIfAbsent(automatic, crimeDS + value.getWeapon());
+                            case SemiAutomatic ->
+                                    weaponInstance = createInstanceIfAbsent(semiAutomatic, crimeDS + value.getWeapon());
+                            case Manual ->
+                                    weaponInstance = createInstanceIfAbsent(manual, crimeDS + value.getWeapon());
+                            case SpecialWeapons ->
+                                    weaponInstance = createInstanceIfAbsent(specialWeapons, crimeDS + value.getWeapon());
+                            default ->
+                                    weaponInstance = createInstanceIfAbsent(weaponInfo, crimeDS + value.getWeapon());
+                        }
                         model.add(weaponInstance, weaponCode, model.createTypedLiteral(value.getWeapon()));
                         model.add(weaponInstance, weaponDescription, value.getWeaponDesc());
                         instanceHashMap.replace(crimeDS + value.getWeapon(), weaponInstance);

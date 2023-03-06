@@ -14,7 +14,7 @@ public class CrimeDO {
     private int area;
     private String areaName;
     private List<Integer> crimeCodes;
-    private String primaryCrimeDesc;
+    private String crimeDesc;
     private List<Integer> moCodes; // see link: https://data.lacity.org/api/views/y8tr-7khq/files/3a967fbd-f210-4857-bc52-60230efe256c?download=true&filename=MO%20CODES%20(numerical%20order).pdf
     private int premise;
     private String premiseDesc;
@@ -36,7 +36,7 @@ public class CrimeDO {
             this.setArea(record[4].equals("") ? 0 : Integer.parseInt(record[4]));
             this.setAreaName(record[5]);
             this.setCrimeCodes(new String[]{record[14], record[15], record[16], record[17]});
-            this.setPrimaryCrimeDesc(record[6]);
+            this.setCrimeDesc(record[6]);
             this.setMoCodes(record[7].split(" "));
             this.setPremise(record[8].equals("") ? 0 :Integer.parseInt(record[8]));
             this.setPremiseDesc(record[9]);
@@ -106,12 +106,12 @@ public class CrimeDO {
         this.crimeCodes = temp;
     }
 
-    public String getPrimaryCrimeDesc() {
-        return primaryCrimeDesc;
+    public String getCrimeDesc() {
+        return crimeDesc;
     }
 
-    public void setPrimaryCrimeDesc(String primaryCrimeDesc) {
-        this.primaryCrimeDesc = primaryCrimeDesc;
+    public void setCrimeDesc(String crimeDesc) {
+        this.crimeDesc = crimeDesc;
     }
 
     public List<Integer> getMoCodes() {
