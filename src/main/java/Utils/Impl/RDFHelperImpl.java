@@ -41,7 +41,8 @@ public class RDFHelperImpl implements RDFHelper {
 
     enum PropertyNames {
         hasDRNo, reportedOn, occurredOn, inArea, areaCode, areaDescription, crimeOccurred, crimeCode, crimeDescription, hasPremise, premiseCode,
-        premiseDescription, usingWeapon, weaponCode, weaponDescription, hasCurrentStatus, statusCode, statusDescription, atLocation, atCrossStreet, hadHousingPriceIndex;
+        premiseDescription, usingWeapon, weaponCode, weaponDescription, hasCurrentStatus, statusCode, statusDescription, atLocation, atCrossStreet, hadHousingPriceIndex,
+        isTheDRNoOf, isTheWeaponUsedIn, isCurrentStatusOf, isLocationOfCrime, isHousePriceIndexOf;
 
         String getUri() {
             if (this.name().equalsIgnoreCase("hasHousingPriceIndex")) {
@@ -230,6 +231,8 @@ public class RDFHelperImpl implements RDFHelper {
         hasDRNo.addComment("Division of Records Number: Official file number made up of a 2 digit year, area ID, and 5 digits", "EN");
         hasDRNo.addDomain(crimeRecord);
         hasDRNo.addRange(XSD.xstring);
+        ObjectProperty isDRNoOf = model.createObjectProperty(PropertyNames.isTheDRNoOf.getUri());
+        isDRNoOf.addInverseOf(hasDRNo);
 
         ObjectProperty reportedOn = model.createObjectProperty(PropertyNames.reportedOn.getUri());
         reportedOn.addComment("The date on which the crime was reported", "EN");
@@ -286,6 +289,8 @@ public class RDFHelperImpl implements RDFHelper {
         ObjectProperty usingWeapon = model.createObjectProperty(PropertyNames.usingWeapon.getUri());
         usingWeapon.addComment("The type of weapon used in the crime.", "EN");
         usingWeapon.addDomain(crimeRecord);
+        ObjectProperty isTheWeaponUsedIn = model.createObjectProperty(PropertyNames.isTheWeaponUsedIn.getUri());
+        isTheWeaponUsedIn.addInverseOf(usingWeapon);
 
         ObjectProperty weaponCode = model.createObjectProperty(PropertyNames.weaponCode.getUri());
         weaponCode.addComment("Weapon Code", "EN");
@@ -300,6 +305,8 @@ public class RDFHelperImpl implements RDFHelper {
         ObjectProperty currentStatus = model.createObjectProperty(PropertyNames.hasCurrentStatus.getUri());
         currentStatus.addComment("Status of the case.", "EN");
         currentStatus.addDomain(crimeRecord);
+        ObjectProperty isCurrentStatusOf = model.createObjectProperty(PropertyNames.isCurrentStatusOf.getUri());
+        isCurrentStatusOf.addInverseOf(currentStatus);
 
         ObjectProperty statusCode = model.createObjectProperty(PropertyNames.statusCode.getUri());
         statusCode.addComment("Status Code(IC is the default)", "EN");
@@ -325,6 +332,8 @@ public class RDFHelperImpl implements RDFHelper {
         hadHousePriceIndex.addComment("The House Price Index of the Area, on the month of crime", "EN");
         hadHousePriceIndex.addDomain(crimeRecord);
         hadHousePriceIndex.addRange(XSD.xdouble);
+        ObjectProperty isHousePriceIndexOf = model.createObjectProperty(PropertyNames.isHousePriceIndexOf.getUri());
+        isHousePriceIndexOf.addInverseOf(hadHousePriceIndex);
 
         int l = crimeDOList.size();
         try (ProgressBar pb = new ProgressBar("Parsing records to model", l)) {
